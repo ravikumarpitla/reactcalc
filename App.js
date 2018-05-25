@@ -96,6 +96,8 @@ handlecalCOps(input){
     }
     case "*":{
       return this.updateStateOnOp(input);
+    }case "+":{
+      return this.updateStateOnOp(input);
     }
     case "-":{
       return this.updateStateOnOp(input);
@@ -132,7 +134,8 @@ updateStateOnOp(input){
 this.setState({
   prevInputVal:this.state.inputValue,
   inputValue:0,
-  selectOp:input
+  selectOp:input,
+  resultShown:false
 });
 //alert("prev val is  "+this.state.prevInputVal+"    new val is  "+this.state.inputValue);
 }
@@ -151,13 +154,15 @@ handleNumberInput(num){
 updateOnDel(){
   let inputValue = parseInt(this.state.inputValue/10);
   this.setState({
-    inputValue:inputValue
+    inputValue:inputValue,
+    resultShown:false
   });
  
 }
 updateOnAC(){
   this.setState({
-    inputValue:0
+    inputValue:0,
+    resultShown:false
   });
 }
 }
