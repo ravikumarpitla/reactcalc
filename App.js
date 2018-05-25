@@ -14,10 +14,11 @@ import {
 import InputButton from './InputButton';
 
 const inputButtons=[
-  [1,2,3,'/'],
-  [4,5,6,'*'],
+  ["AC","DEL",'/','*'],
   [7,8,9,'-'],
-  [0,'.','=','+']
+  [4,5,6,'+'],
+  [1,2,3,'C'],
+  ['%',0,'.',"="]
 ];
 const instructions = Platform.select({
   ios: 'Press Cmd+R to reload,\n' +
@@ -31,7 +32,10 @@ export default class App extends Component<Props> {
   constructor(props){
     super(props);
     this.state={
-      inputValue:0
+      inputValue:0,
+      prevInputVal:0,
+      selectOp:null,
+      resultShown:false
     }
   }
   render() {
@@ -41,13 +45,13 @@ export default class App extends Component<Props> {
        <Text style={styles.displayText}>{this.state.inputValue}</Text>
          </View>
        <View style={styles.inputKeysStyle}>
-       {this._renderInputButtons()}</View>
+       {this.renderInputButtons()}</View>
        
       </View>
     );
   }
 
-_renderInputButtons(){
+renderInputButtons(){
   let views =[];
   for(var r=0; r<inputButtons.length;r++){
     let row = inputButtons[r];
@@ -55,7 +59,7 @@ _renderInputButtons(){
     for (var i=0; i<row.length; i++){
       let input = row[i];
       inputRow.push(
-        <InputButton value={input} key={r+"-"+i} onPress={this._onInputButtonPressed.bind(this,input)}/>
+        <InputButton value={input} key={r+"-"+i} onPress={this.onInputButtonPressed.bind(this,input)}/>
               );
 
     }
@@ -63,20 +67,98 @@ _renderInputButtons(){
   }
   return views;
 }
-_onInputButtonPressed(input){
+onInputButtonPressed(input){
   switch(typeof input){
-    case 'number':
-    return this.handleNumberInput(input);
+    case 'number':{
+      return this.handleNumberInput(input);
+    }    
+    case 'string':{
+      return this.handlecalCOps(input);
+    }
   }
   
   
  
 }
+handlecalCOps(input){
+  switch(input){
+    case "DEL":{
+      return this.updateOnDel();
+    }
+    case "AC":{
+      return this.updateOnAC();
+    }
+    case "C":{
+      return this.updateOnAC();
+    }
+    case "/":{
+      return this.updateStateOnOp(input);
+    }
+    case "*":{
+      return this.updateStateOnOp(input);
+    }
+    case "-":{
+      return this.updateStateOnOp(input);
+    }
+    case "%":{
+      return this.updateStateOnOp(input);
+    }
+    case "=":{
+      return this.setResult(input);
+    }
+    
+
+  }
+ 
+    return;
+}
+setResult(input){
+  let prevVal=this.state.prevInputVal,
+      inputVal = this.state.inputValue,
+      operator = this.state.selectOp;
+      if(this.state.selectOp==="%"){
+        inputVal = prevVal*(inputVal/100);
+      }else{
+        inputVal = eval(prevVal+operator+inputVal);
+      }
+      this.setState({
+        inputValue:inputVal,
+        prevInputVal:0,
+        selectOp:null,
+        resultShown:true
+      });
+}
+updateStateOnOp(input){
+this.setState({
+  prevInputVal:this.state.inputValue,
+  inputValue:0,
+  selectOp:input
+});
+//alert("prev val is  "+this.state.prevInputVal+"    new val is  "+this.state.inputValue);
+}
 handleNumberInput(num){
-  let inputValue = (this.state.inputValue*10)+num;
+  let inputValue = 0;
+  if(!this.state.resultShown){
+    inputValue=(this.state.inputValue*10)+num;
+  }else{
+    inputValue=num;
+  }
+  this.setState({
+    inputValue:inputValue,
+    resultShown:false
+  });
+}
+updateOnDel(){
+  let inputValue = parseInt(this.state.inputValue/10);
   this.setState({
     inputValue:inputValue
-  })
+  });
+ 
+}
+updateOnAC(){
+  this.setState({
+    inputValue:0
+  });
 }
 }
 
@@ -117,5 +199,9 @@ backgroundColor: '#3E606F'
     fontWeight:'bold',
     textAlign:'right',
     padding:20
+  },
+  buttonsStyle:{
+    flex: 1,
+    backgroundColor: '#3E606F'
   }
 });
